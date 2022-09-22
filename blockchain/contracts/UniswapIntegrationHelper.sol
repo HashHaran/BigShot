@@ -41,6 +41,14 @@ contract UniswapIntegrationHelper is
         uint256 targetHealthFactor;
     }
 
+    struct UniswapFlashParams {
+        address token0;
+        address token1;
+        uint256 amount0;
+        uint256 amount1;
+        bool isToken0Collateral;
+    }
+
     function _initiateShortPositionWithFlashSwapCollateral(
         address tokenAddress,
         uint256 units,
@@ -49,27 +57,25 @@ contract UniswapIntegrationHelper is
         uint256 flashCollateral,
         uint256 userCollateral
     ) internal {
-        address token0;
-        address token1;
-        uint256 amount0 = 0;
-        uint256 amount1 = 0;
-        bool isToken0Collateral;
+        UniswapFlashParams memory flashParams;
+        flashParams.amount0 = 0;
+        flashParams.amount1 = 0;
 
         if (tokenAddress < collateralAddress) {
-            token0 = tokenAddress;
-            token1 = collateralAddress;
-            amount1 = flashCollateral;
-            isToken0Collateral = false;
+            flashParams.token0 = tokenAddress;
+            flashParams.token1 = collateralAddress;
+            flashParams.amount1 = flashCollateral;
+            flashParams.isToken0Collateral = false;
         } else {
-            token0 = collateralAddress;
-            token1 = tokenAddress;
-            amount0 = flashCollateral;
-            isToken0Collateral = true;
+            flashParams.token0 = collateralAddress;
+            flashParams.token1 = tokenAddress;
+            flashParams.amount0 = flashCollateral;
+            flashParams.isToken0Collateral = true;
         }
 
         PoolAddress.PoolKey memory poolKey = PoolAddress.PoolKey({
-            token0: token0,
-            token1: token1,
+            token0: flashParams.token0,
+            token1: flashParams.token1,
             fee: uniswapPoolFee
         });
         IUniswapV3Pool pool = IUniswapV3Pool(
@@ -82,16 +88,16 @@ contract UniswapIntegrationHelper is
         // recipient of flash should be THIS contract
         pool.flash(
             address(this),
-            amount0,
-            amount1,
+            flashParams.amount0,
+            flashParams.amount1,
             abi.encode(
                 FlashCallbackData({
-                    amount0: amount0,
-                    amount1: amount1,
+                    amount0: flashParams.amount0,
+                    amount1: flashParams.amount1,
                     user: msg.sender,
                     poolKey: poolKey,
                     isPositionInit: true,
-                    isToken0Collateral: isToken0Collateral,
+                    isToken0Collateral: flashParams.isToken0Collateral,
                     units: units,
                     userCollateral: userCollateral,
                     flashCollateral: flashCollateral,
@@ -108,27 +114,25 @@ contract UniswapIntegrationHelper is
         uint24 uniswapPoolFee,
         uint256 targetHealthFactor
     ) internal {
-        address token0;
-        address token1;
-        uint256 amount0 = 0;
-        uint256 amount1 = 0;
-        bool isToken0Collateral;
+        UniswapFlashParams memory flashParams;
+        flashParams.amount0 = 0;
+        flashParams.amount1 = 0;
 
         if (tokenAddress < collateralAddress) {
-            token0 = tokenAddress;
-            token1 = collateralAddress;
-            amount0 = units;
-            isToken0Collateral = false;
+            flashParams.token0 = tokenAddress;
+            flashParams.token1 = collateralAddress;
+            flashParams.amount0 = units;
+            flashParams.isToken0Collateral = false;
         } else {
-            token0 = collateralAddress;
-            token1 = tokenAddress;
-            amount1 = units;
-            isToken0Collateral = true;
+            flashParams.token0 = collateralAddress;
+            flashParams.token1 = tokenAddress;
+            flashParams.amount1 = units;
+            flashParams.isToken0Collateral = true;
         }
 
         PoolAddress.PoolKey memory poolKey = PoolAddress.PoolKey({
-            token0: token0,
-            token1: token1,
+            token0: flashParams.token0,
+            token1: flashParams.token1,
             fee: uniswapPoolFee
         });
         IUniswapV3Pool pool = IUniswapV3Pool(
@@ -141,16 +145,16 @@ contract UniswapIntegrationHelper is
         // recipient of flash should be THIS contract
         pool.flash(
             address(this),
-            amount0,
-            amount1,
+            flashParams.amount0,
+            flashParams.amount1,
             abi.encode(
                 FlashCallbackData({
-                    amount0: amount0,
-                    amount1: amount1,
+                    amount0: flashParams.amount0,
+                    amount1: flashParams.amount1,
                     user: msg.sender,
                     poolKey: poolKey,
                     isPositionInit: true,
-                    isToken0Collateral: isToken0Collateral,
+                    isToken0Collateral: flashParams.isToken0Collateral,
                     units: units,
                     userCollateral: 0,
                     flashCollateral: 0,
