@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.9;
+pragma solidity 0.7.6;
 
 import "hardhat/console.sol";
 
@@ -8,6 +8,8 @@ contract AaveIntegrationHelper {
         address tokenAddress,
         uint256 units,
         address collateralAddress,
+        uint256 flashCollateral,
+        uint256 userCollateral,
         address user
     ) internal {}
 
@@ -15,6 +17,7 @@ contract AaveIntegrationHelper {
         address tokenAddress,
         uint256 units,
         address collateralAddress,
-        address user
+        address user,
+        uint256 targetHealthFactor
     ) internal {}
 }
