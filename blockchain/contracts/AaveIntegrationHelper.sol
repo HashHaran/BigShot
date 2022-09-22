@@ -17,8 +17,9 @@ contract AaveIntegrationHelper {
     }
 
     function depositToken(address tokenAddress, uint256 units, uint256 amount) public {
+       IERC20(tokenAddress).transferFrom(msg.sender, address(this), amount);
         IERC20(tokenAddress).approve(address(poolAddress), amount);
-        poolAddress.deposit(tokenAddress, units, msg.sender, 0);
+        poolAddress.deposit(tokenAddress, units, address(this), 0);
     }
 
     function withdrawToken(address tokenAddress, uint256 totalAmount) public {
