@@ -1,17 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.6.12;
+pragma solidity ^0.7.6;
 
 import "hardhat/console.sol";
-import "@aave/protocol-v2/contracts/interfaces/ILendingPool.sol";
+import "@aave/core-v3/contracts/interfaces/IPool.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract AaveIntegrationHelper {
     ILendingPool public poolAddress;
 
-    //0x794a61358D6845594F94dc1DB02A252b5b4814aD -polygon mainnet
-    // 0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9 --eth mainnet
-
-    // 0x9198F13B08E299d85E096929fA9781A1E3d5d827 -- mumbai
+    // 0x1758d4e6f68166C4B2d9d0F049F33dEB399Daa1F - mumbai
     constructor(address _poolAddress) public {
         poolAddress = ILendingPool(_poolAddress);
     }
