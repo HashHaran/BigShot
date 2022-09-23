@@ -20,7 +20,7 @@ contract AaveIntegrationHelper {
     ) public {
         IERC20(tokenAddress).transferFrom(msg.sender, address(this), amount);
         IERC20(tokenAddress).approve(address(poolAddress), amount);
-        poolAddress.deposit(tokenAddress, units, address(this), 0);
+        poolAddress.supply(tokenAddress, units, address(this), 0);
     }
 
     function withdrawToken(address tokenAddress, uint256 totalAmount) public {
@@ -36,7 +36,7 @@ contract AaveIntegrationHelper {
         address user
     ) public {
         uint256 totalCollateral = flashCollateral + userCollateral;
-        poolAddress.deposit(tokenAddress, totalCollateral, user, 0);
+        poolAddress.supply(tokenAddress, totalCollateral, user, 0);
         poolAddress.setUserUseReserveAsCollateral(tokenAddress, true);
         poolAddress.borrow(collateralAddress, units, 2, 0, user);
     }
