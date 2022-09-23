@@ -13,8 +13,12 @@ contract AaveIntegrationHelper {
         poolAddress = IPool(_poolAddress);
     }
 
-    function depositToken(address tokenAddress, uint256 units, uint256 amount) public {
-        IERC20(tokenAddress).transferFrom(msg.sender, address(this), amount)
+    function depositToken(
+        address tokenAddress,
+        uint256 units,
+        uint256 amount
+    ) public {
+        IERC20(tokenAddress).transferFrom(msg.sender, address(this), amount);
         IERC20(tokenAddress).approve(address(poolAddress), amount);
         poolAddress.deposit(tokenAddress, units, address(this), 0);
     }
@@ -31,7 +35,7 @@ contract AaveIntegrationHelper {
         uint256 userCollateral,
         address user
     ) public {
-        uint256 totalCollateral = flashCollateral + userCollateral ;
+        uint256 totalCollateral = flashCollateral + userCollateral;
         poolAddress.deposit(tokenAddress, totalCollateral, user, 0);
         poolAddress.setUserUseReserveAsCollateral(tokenAddress, true);
         poolAddress.borrow(collateralAddress, units, 2, 0, user);
@@ -53,6 +57,6 @@ contract AaveIntegrationHelper {
     }
 
     function getUserData() public view {
-        poolAddress.getUserAccountData(address(this);
+        poolAddress.getUserAccountData(address(this));
     }
 }
