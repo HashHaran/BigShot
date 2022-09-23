@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.7.6;
+pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
 import {UniswapIntegrationHelper} from "./UniswapIntegrationHelper.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract BigShot is UniswapIntegrationHelper {
-    constructor(address _factory, address _WETH9)
-        UniswapIntegrationHelper(_factory, _WETH9)
-    {}
+    constructor(
+        address _factory,
+        address _WETH9,
+        address _aavePoolAddress
+    ) UniswapIntegrationHelper(_factory, _WETH9, _aavePoolAddress) {}
 
     function openShortTokenPosition(
         address tokenAddress,

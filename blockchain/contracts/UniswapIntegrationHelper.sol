@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.7.6;
+pragma solidity ^0.8.0;
 pragma abicoder v2;
 
 import "@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3FlashCallback.sol";
@@ -24,8 +24,13 @@ contract UniswapIntegrationHelper is
     using LowGasSafeMath for uint256;
     using LowGasSafeMath for int256;
 
-    constructor(address _factory, address _WETH9)
+    constructor(
+        address _factory,
+        address _WETH9,
+        address _aavePoolAddress
+    )
         PeripheryImmutableState(_factory, _WETH9)
+        AaveIntegrationHelper(_aavePoolAddress)
     {}
 
     struct FlashCallbackData {
