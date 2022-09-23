@@ -12,6 +12,10 @@ const PRIVATE_KEY1: string | undefined = process.env.PRIVATE_KEY1;
 const PRIVATE_KEY2: string | undefined = process.env.PRIVATE_KEY2;
 const PRIVATE_KEY3: string | undefined = process.env.PRIVATE_KEY3;
 const PRIVATE_KEY4: string | undefined = process.env.PRIVATE_KEY4;
+const TEST_PRIVATE_KEY1: string | undefined = process.env.TEST_PRIVATE_KEY1;
+const TEST_PRIVATE_KEY2: string | undefined = process.env.TEST_PRIVATE_KEY2;
+const TEST_PRIVATE_KEY3: string | undefined = process.env.TEST_PRIVATE_KEY3;
+const TEST_PRIVATE_KEY4: string | undefined = process.env.TEST_PRIVATE_KEY4;
 
 if (!GOERLI_API_URL || !PRIVATE_KEY1 || !PRIVATE_KEY2 || !PRIVATE_KEY3 || !PRIVATE_KEY4) {
   throw new Error("Please set your API_URL and PRIVATE_KEYs in a .env file");
@@ -36,7 +40,7 @@ const config: HardhatUserConfig = {
   networks: {
     fork: {
       url: "http://127.0.0.1:8545/",
-      accounts: [`0x${PRIVATE_KEY1}`, `0x${PRIVATE_KEY2}`, `0x${PRIVATE_KEY3}`, `0x${PRIVATE_KEY4}`]
+      accounts: [`0x${TEST_PRIVATE_KEY1}`, `0x${TEST_PRIVATE_KEY2}`, `0x${TEST_PRIVATE_KEY3}`, `0x${TEST_PRIVATE_KEY4}`]
     },
     goerli: {
       url: GOERLI_API_URL,

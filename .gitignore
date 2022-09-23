@@ -104,6 +104,8 @@ dist
 .tern-port
 
 node_modules
+!node_modules/@uniswap/
+localContractAddress.json
 .env
 coverage
 coverage.json
