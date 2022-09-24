@@ -73,7 +73,7 @@ contract AaveIntegrationHelper {
         uint256 targetHealth
     ) public {
         IERC20(tokenBorrowed).approve(address(poolAddress), units);
-        poolAddress.repay(tokenBorrowed, type(uint256).max, 2, user);
+        poolAddress.repay(tokenBorrowed, units, 2, user);
         (
             uint256 totalCollateralBase,
             uint256 totalDebtBase,
