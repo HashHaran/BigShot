@@ -12,25 +12,38 @@ contract AaveIntegrationHelper {
         poolAddress = IPool(_poolAddress);
     }
 
+    function depositToken(
+        address tokenAddress,
+        uint256 units,
+        uint256 amount
+    ) public {
+        IERC20(tokenAddress).transferFrom(msg.sender, address(this), amount);
+        IERC20(tokenAddress).approve(address(poolAddress), amount);
+        poolAddress.supply(tokenAddress, units, address(this), 0);
+    }
+
+    function withdrawToken(address tokenAddress, uint256 totalAmount) public {
+        poolAddress.withdraw(tokenAddress, totalAmount, msg.sender);
+    }
+
     function _suppllyCollateralAndBorrow(
         address tokenAddress,
         uint256 units,
         address collateralAddress,
         uint256 flashCollateral,
-        uint256 userCollateral,
-        address user
+        uint256 userCollateral
     ) public {
         uint256 totalCollateral = flashCollateral + userCollateral;
-        // IERC20(tokenAddress).transferFrom(
-        //     msg.sender,
-        //     address(this),
-        //     totalCollateral
-        // );
-        // IERC20(tokenAddress).approve(address(poolAddress), totalCollateral);
+        IERC20(tokenAddress).transferFrom(
+            msg.sender,
+            address(this),
+            totalCollateral
+        );
+        IERC20(tokenAddress).approve(address(poolAddress), totalCollateral);
 
-        poolAddress.supply(collateralAddress, totalCollateral, user, 0);
-        // poolAddress.setUserUseReserveAsCollateral(tokenAddress, true);
-        poolAddress.borrow(tokenAddress, units, 2, 0, user);
+        poolAddress.supply(tokenAddress, totalCollateral, address(this), 0);
+        poolAddress.setUserUseReserveAsCollateral(tokenAddress, true);
+        poolAddress.borrow(collateralAddress, units, 2, 0, address(this));
     }
 
     /*
@@ -48,8 +61,8 @@ contract AaveIntegrationHelper {
         address user,
         uint256 targetHealth
     ) public {
-        // IERC20(tokenAddress).approve(address(poolAddress), units);
-        poolAddress.repay(tokenAddress, units, 2, user);
+        IERC20(tokenAddress).approve(address(poolAddress), units);
+        poolAddress.repay(collateralAddress, units, 2, user);
         (
             uint256 totalCollateralBase,
             uint256 totalDebtBase,
@@ -57,16 +70,16 @@ contract AaveIntegrationHelper {
             uint256 currentLiquidationThreshold,
             ,
 
-        ) = poolAddress.getUserAccountData(user);
+        ) = poolAddress.getUserAccountData(address(this));
         if (totalDebtBase <= 0) {
-            poolAddress.withdraw(collateralAddress, totalCollateralBase, user);
+            poolAddress.withdraw(tokenAddress, totalCollateralBase, user);
         } else {
             uint256 withdrawAmount = calculateWithdraw(
                 targetHealth,
                 totalDebtBase,
                 currentLiquidationThreshold
             );
-            poolAddress.withdraw(collateralAddress, withdrawAmount, user);
+            poolAddress.withdraw(tokenAddress, withdrawAmount, user);
         }
     }
 
