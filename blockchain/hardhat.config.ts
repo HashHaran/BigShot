@@ -2,7 +2,6 @@ import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 
 import * as dotenv from "dotenv";
-import { version } from "os";
 dotenv.config();
 
 const GOERLI_API_URL: string | undefined = process.env.GOERLI_API_URL;
@@ -38,9 +37,29 @@ const config: HardhatUserConfig = {
   defaultNetwork: "fork",
 
   networks: {
+    hardhat: {
+      accounts: [
+        {
+          privateKey: `0x${PRIVATE_KEY1}`,
+          balance: "10000000000000000000000"
+        },
+        {
+          privateKey: `0x${PRIVATE_KEY2}`,
+          balance: "10000000000000000000000"
+        },
+        {
+          privateKey: `0x${PRIVATE_KEY3}`,
+          balance: "10000000000000000000000"
+        },
+        {
+          privateKey: `0x${PRIVATE_KEY4}`,
+          balance: "10000000000000000000000"
+        }
+      ]
+    },
     fork: {
       url: "http://127.0.0.1:8545/",
-      accounts: [`0x${TEST_PRIVATE_KEY1}`, `0x${TEST_PRIVATE_KEY2}`, `0x${TEST_PRIVATE_KEY3}`, `0x${TEST_PRIVATE_KEY4}`]
+      // accounts: [`0x${PRIVATE_KEY1}`, `0x${PRIVATE_KEY2}`, `0x${PRIVATE_KEY3}`, `0x${PRIVATE_KEY4}`]
     },
     goerli: {
       url: GOERLI_API_URL,
