@@ -27,10 +27,11 @@ contract UniswapIntegrationHelper is
     constructor(
         address _factory,
         address _WETH9,
-        address _aavePoolAddress
+        address _aavePoolAddress,
+        address _aaveOracleAddress
     )
         PeripheryImmutableState(_factory, _WETH9)
-        AaveIntegrationHelper(_aavePoolAddress)
+        AaveIntegrationHelper(_aavePoolAddress, _aaveOracleAddress)
     {}
 
     struct FlashCallbackData {

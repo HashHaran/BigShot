@@ -5,10 +5,11 @@ var fs = require('fs');
 const WETH9 = "0x4200000000000000000000000000000000000006"; //Ether Scan
 const UNISWAP_FACTORY = "0x1F98431c8aD98523631AE4a59f267346ea31F984"; //Uniswap Docs
 const AAVE_POOL = "0x794a61358D6845594F94dc1DB02A252b5b4814aD"; //Aave docs
+const AAVE_ORACLE_ADDRESS = "0xD81eb3728a631871a7eBBaD631b5f424909f0c77"; //AAve Docs
 
 async function main() {
     const BigShot = await ethers.getContractFactory("BigShot");
-    const bigShot = await BigShot.deploy(UNISWAP_FACTORY, WETH9, AAVE_POOL);
+    const bigShot = await BigShot.deploy(UNISWAP_FACTORY, WETH9, AAVE_POOL, AAVE_ORACLE_ADDRESS);
   
     await bigShot.deployed();
   

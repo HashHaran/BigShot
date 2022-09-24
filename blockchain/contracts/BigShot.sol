@@ -10,8 +10,17 @@ contract BigShot is UniswapIntegrationHelper, Ownable {
     constructor(
         address _factory,
         address _WETH9,
-        address _aavePoolAddress
-    ) UniswapIntegrationHelper(_factory, _WETH9, _aavePoolAddress) Ownable() {}
+        address _aavePoolAddress,
+        address _aaveOracleAddress
+    )
+        UniswapIntegrationHelper(
+            _factory,
+            _WETH9,
+            _aavePoolAddress,
+            _aaveOracleAddress
+        )
+        Ownable()
+    {}
 
     function approveToken(address tokenAddress, uint256 amount)
         external
