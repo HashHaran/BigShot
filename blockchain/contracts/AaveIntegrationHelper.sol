@@ -4,12 +4,15 @@ pragma solidity ^0.8.10;
 import "hardhat/console.sol";
 import {IPool} from "@aave/core-v3/contracts/interfaces/IPool.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IPriceOracle} from "@aave/core-v3/contracts/interfaces/IPriceOracle.sol";
 
 contract AaveIntegrationHelper {
     IPool public poolAddress;
+    IPriceOracle public oracleAddress;
 
-    constructor(address _poolAddress) {
+    constructor(address _poolAddress, address _oracleAddress) {
         poolAddress = IPool(_poolAddress);
+        oracleAddress = IPriceOracle(_oracleAddress);
     }
 
     function depositToken(
@@ -27,23 +30,31 @@ contract AaveIntegrationHelper {
     }
 
     function _suppllyCollateralAndBorrow(
-        address tokenAddress,
+        address tokenToBorrow,
         uint256 units,
         address collateralAddress,
         uint256 flashCollateral,
         uint256 userCollateral
     ) public {
         uint256 totalCollateral = flashCollateral + userCollateral;
-        IERC20(tokenAddress).transferFrom(
+        IERC20(collateralAddress).transferFrom(
             msg.sender,
             address(this),
             totalCollateral
         );
-        IERC20(tokenAddress).approve(address(poolAddress), totalCollateral);
+        IERC20(collateralAddress).approve(
+            address(poolAddress),
+            totalCollateral
+        );
 
-        poolAddress.supply(tokenAddress, totalCollateral, address(this), 0);
-        poolAddress.setUserUseReserveAsCollateral(tokenAddress, true);
-        poolAddress.borrow(collateralAddress, units, 2, 0, address(this));
+        poolAddress.supply(
+            collateralAddress,
+            totalCollateral,
+            address(this),
+            0
+        );
+        poolAddress.setUserUseReserveAsCollateral(collateralAddress, true);
+        poolAddress.borrow(tokenToBorrow, units, 2, 0, address(this));
     }
 
     /*
@@ -55,14 +66,14 @@ contract AaveIntegrationHelper {
      @note - providing a target Health less than 1 will put your loan up for liquidation
    */
     function _repayAndWithdrawCollateral(
-        address tokenAddress,
+        address tokenBorrowed,
         uint256 units,
         address collateralAddress,
         address user,
         uint256 targetHealth
     ) public {
-        IERC20(tokenAddress).approve(address(poolAddress), units);
-        poolAddress.repay(collateralAddress, units, 2, user);
+        IERC20(tokenBorrowed).approve(address(poolAddress), units);
+        poolAddress.repay(tokenBorrowed, type(uint256).max, 2, user);
         (
             uint256 totalCollateralBase,
             uint256 totalDebtBase,
@@ -72,14 +83,18 @@ contract AaveIntegrationHelper {
 
         ) = poolAddress.getUserAccountData(address(this));
         if (totalDebtBase <= 0) {
-            poolAddress.withdraw(tokenAddress, totalCollateralBase, user);
+            uint256 _getPrice = oracleAddress.getAssetPrice(collateralAddress);
+            uint256 amountWithdraw = (totalCollateralBase / _getPrice) *
+                1000000000000000000;
+            poolAddress.withdraw(collateralAddress, amountWithdraw, user);
         } else {
             uint256 withdrawAmount = calculateWithdraw(
                 targetHealth,
                 totalDebtBase,
-                currentLiquidationThreshold
+                currentLiquidationThreshold,
+                collateralAddress
             );
-            poolAddress.withdraw(tokenAddress, withdrawAmount, user);
+            poolAddress.withdraw(collateralAddress, withdrawAmount, user);
         }
     }
 
@@ -126,11 +141,20 @@ contract AaveIntegrationHelper {
     function calculateWithdraw(
         uint256 healthFactor,
         uint256 totalBorrow,
-        uint256 liquidationThreshold
-    ) public pure returns (uint256) {
+        uint256 liquidationThreshold,
+        address collateralAddress
+    ) public view returns (uint256) {
         uint256 liquidationValue = liquidationThreshold / 100;
         uint256 totalCollateral = (healthFactor * totalBorrow) /
             liquidationValue;
-        return totalCollateral;
+        uint256 _getPrice = oracleAddress.getAssetPrice(collateralAddress);
+        uint256 _getAmount = totalCollateral / _getPrice;
+        uint256 _total = _getAmount * 1000000000000000000;
+        return _total;
+    }
+
+    function getPrice(address assest) public view returns (uint256) {
+        uint256 _price = oracleAddress.getAssetPrice(assest);
+        return _price;
     }
 }
