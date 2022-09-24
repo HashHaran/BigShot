@@ -9,7 +9,7 @@ async function main() {
 
     const poolAddressesProvider: IPoolAddressesProvider = IPoolAddressesProvider__factory.connect(POOL_ADDRESSES_PROVIDER, user1);
 
-    console.log( poolAddressesProvider.getPool())
+    console.log(poolAddressesProvider.getPool());
 
 }
 
