@@ -1,6 +1,9 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 
+import '@typechain/hardhat'
+import '@nomiclabs/hardhat-ethers'
+
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -33,6 +36,12 @@ const config: HardhatUserConfig = {
         version: "0.8.10"
       },
     ]
+  },
+  typechain: {
+    outDir: 'typechain-types',
+    target: 'ethers-v5',
+    alwaysGenerateOverloads: false,
+    externalArtifacts: ['node_modules/@aave/core-v3/artifacts/contracts/interfaces/ICreditDelegationToken.sol/ICreditDelegationToken.json'],
   },
   defaultNetwork: "fork",
 

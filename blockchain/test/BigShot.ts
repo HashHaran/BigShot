@@ -1,16 +1,24 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { Wallet } from 'ethers'
+import { Wallet } from 'ethers';
 
-import { BigShot } from "../typechain-types/contracts/BigShot"
-import { IERC20 } from "../typechain-types/@openzeppelin/contracts/token/ERC20/IERC20"
-import { IERC20__factory } from "../typechain-types/factories/@openzeppelin/contracts/token/ERC20/IERC20__factory"
+import { BigShot } from "../typechain-types/artifacts/contracts/BigShot";
+import { IERC20 } from "../typechain-types/artifacts/@openzeppelin/contracts/token/ERC20/IERC20";
+import { IERC20__factory } from "../typechain-types/factories/artifacts/@openzeppelin/contracts/token/ERC20/IERC20__factory";
+import { IPool } from "../typechain-types/artifacts/@aave/core-v3/contracts/interfaces/IPool";
+import { IPool__factory } from "../typechain-types/factories/artifacts/@aave/core-v3/contracts/interfaces/IPool__factory";
+import { ICreditDelegationToken } from "../typechain-types/node_modules/@aave/core-v3/artifacts/contracts/interfaces/ICreditDelegationToken";
+import { ICreditDelegationToken__factory } from "../typechain-types/factories/node_modules/@aave/core-v3/artifacts/contracts/interfaces/ICreditDelegationToken__factory";
+
 
 import * as fs from "fs";
 
 //CONFIG: OPTIMISM MAIN NET ADDRESSES THAT WE WILL NEED AND OTHER CONFIGURATIONS
 const USDC: string = "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"; //Ether Scan
+const vUSDC: string = "0xFCCf3cAbbe80101232d343252614b6A3eE81C989"; //Ether Scan
 const WETH: string = "0x4200000000000000000000000000000000000006"; //Ether Scan
+const vWETH: string = "0x0c84331e39d6658Cd6e6b9ba04736cC4c4734351" //Ether Scan
+const AAVE_POOL = "0x794a61358D6845594F94dc1DB02A252b5b4814aD"; //Aave docs
 const WETH_USDC_RATE: number = 1330;
 const WETH_USDC_RATE_CLOSE_SHORT: number = 1325;
 const DESIRED_HEALTH_FACTOR_OF_SHORT: number = 1.5;
@@ -62,6 +70,20 @@ describe("BigShot", function () {
         await usdcProApproveTx.wait();
         const wethProApproveTx = await bigShot.connect(user1).approveToken(WETH, weth.totalSupply());
         await wethProApproveTx.wait();
+
+        // User needs to approve usage of USDC as collateral in AAVE
+        const pool: IPool = IPool__factory.connect(AAVE_POOL, user1);
+        const setReserveAsCollateralTx = await pool.setUserUseReserveAsCollateral(USDC, true);
+        await setReserveAsCollateralTx.wait();
+
+        // User needs to delegate his credit on the collateral 
+        const usdcVariableDebtToken: ICreditDelegationToken = ICreditDelegationToken__factory.connect(vUSDC, user1);
+        const usdcCreditDelegationTx = await usdcVariableDebtToken.approveDelegation(bigShot.address, usdc.totalSupply());
+        await usdcCreditDelegationTx.wait();
+
+        const wethVariableDebtToken: ICreditDelegationToken = ICreditDelegationToken__factory.connect(vWETH, user1);
+        const wethCreditDelegationTx = await wethVariableDebtToken.approveDelegation(bigShot.address, weth.totalSupply());
+        await wethCreditDelegationTx.wait();
 
         return { bigShot, usdc, weth, user1};
     }

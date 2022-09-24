@@ -34,27 +34,23 @@ contract AaveIntegrationHelper {
         uint256 units,
         address collateralAddress,
         uint256 flashCollateral,
-        uint256 userCollateral
+        uint256 userCollateral,
+        address user
     ) public {
         uint256 totalCollateral = flashCollateral + userCollateral;
-        IERC20(collateralAddress).transferFrom(
-            msg.sender,
-            address(this),
-            totalCollateral
-        );
-        IERC20(collateralAddress).approve(
-            address(poolAddress),
-            totalCollateral
-        );
+        // IERC20(collateralAddress).transferFrom(
+        //     msg.sender,
+        //     address(this),
+        //     totalCollateral
+        // );
+        // IERC20(collateralAddress).approve(
+        //     address(poolAddress),
+        //     totalCollateral
+        // );
 
-        poolAddress.supply(
-            collateralAddress,
-            totalCollateral,
-            address(this),
-            0
-        );
-        poolAddress.setUserUseReserveAsCollateral(collateralAddress, true);
-        poolAddress.borrow(tokenToBorrow, units, 2, 0, address(this));
+        poolAddress.supply(collateralAddress, totalCollateral, user, 0);
+        // poolAddress.setUserUseReserveAsCollateral(collateralAddress, true);
+        poolAddress.borrow(tokenToBorrow, units, 2, 0, user);
     }
 
     /*
@@ -72,7 +68,7 @@ contract AaveIntegrationHelper {
         address user,
         uint256 targetHealth
     ) public {
-        IERC20(tokenBorrowed).approve(address(poolAddress), units);
+        // IERC20(tokenBorrowed).approve(address(poolAddress), units);
         poolAddress.repay(tokenBorrowed, units, 2, user);
         (
             uint256 totalCollateralBase,
