@@ -1,5 +1,7 @@
 import React, { useState } from "react";
+import {useContractWrite, usePrepareContractWrite} from "wagmi"
 import { HiOutlineArrowNarrowRight } from "react-icons/hi";
+//import abi from "../constants/abi.json"
 
 function DepositModal({
   open,
@@ -10,11 +12,20 @@ function DepositModal({
   token_symbol,
   decimal,
 }) {
-  const [inputAmount, setInputAmount] = useState();
+  const [inputAmount, setInputAmount] = useState(0);
   const [leverage, setLeverage] = useState(1);
   //console.log(balance, token_logo, tokenAddress, token_symbol, decimal);
   const balanceA = (balance / 10 ** decimal).toFixed(3);
-  const total = inputAmount * leverage + inputAmount;
+  const total = inputAmount * 2 * leverage;
+
+//   const contract_address = "0x274D146c910dCe811805E08fF8F61a1c3A931c4a";
+//   const { config } = usePrepareContractWrite({
+//     addressOrName: contract_address,
+//     contractInterface: abi,
+//     functionName: "openShortTokenPosition",
+//   });
+
+//   const { write, data, isError, isLoading } = useContractWrite(config);
   return (
     <>
       {open ? (
@@ -24,7 +35,7 @@ function DepositModal({
               <div className="border-0 rounded-lg shadow-sm flex flex-col w-fit bg-white outline-none focus:outline-none">
                 <div className="flex items-start justify-between border-b border-solid border-slate-200 rounded-t">
                   <h3 className="text-2xl text-green-500 ml-10 mt-5 font-semibold">
-                    short token
+                    Short Token
                   </h3>
                   <button
                     className="p-1 ml-auto bg-transparent border-0 text-black float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
@@ -45,6 +56,7 @@ function DepositModal({
                           <div className="flex-col">
                             <input
                               type="number"
+                              value={inputAmount}
                               className="text-lg border ml-5 h-12 text-center rounded-sm shadow-sm"
                               id="input-amount"
                               onChange={(event) => {
@@ -129,7 +141,7 @@ function DepositModal({
                         </div>
                       </div>
 
-                      <button className="bg-red mt-6 ml-20 rounded-lg p-1 px-4 w-fit text-white font-semibold">
+                      <button  className="bg-red mt-6 ml-20 rounded-lg p-1 px-4 w-fit text-white font-semibold">
                         short
                       </button>
                     </div>

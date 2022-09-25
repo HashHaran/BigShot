@@ -1,10 +1,16 @@
 import Head from "next/head";
 import { WalletConnectButton } from "../components/wallet_connect";
-import { useAccount, useNetwork } from "wagmi";
+import {
+  useAccount,
+  useNetwork,
+  useContractWrite,
+  usePrepareContractWrite,
+} from "wagmi";
 import { useEffect, useState } from "react";
 import { BiCheck } from "react-icons/bi";
 import { GrFormClose } from "react-icons/gr";
 import DepositModal from "../components/depositModal";
+import { ethers } from "ethers";
 
 export default function Home() {
   const [walletAssets, setWalletAssets] = useState([]);
@@ -17,6 +23,7 @@ export default function Home() {
 
   const { address, isDisconnected, isConnected } = useAccount();
   const { chain } = useNetwork();
+  
 
   const getValues = (tBalance, Taddress, Tlogo, Tsymbol, Tdecimal) => {
     setOpen(true);
