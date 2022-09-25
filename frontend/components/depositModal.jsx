@@ -1,17 +1,41 @@
 import React, { useState } from "react";
+import {useContractWrite, usePrepareContractWrite} from "wagmi"
 import { HiOutlineArrowNarrowRight } from "react-icons/hi";
+//import abi from "../constants/abi.json"
 
-function DepositModal({ open, setOpen }) {
+function DepositModal({
+  open,
+  setOpen,
+  tokenAddress,
+  balance,
+  token_logo,
+  token_symbol,
+  decimal,
+}) {
+  const [inputAmount, setInputAmount] = useState(0);
+  const [leverage, setLeverage] = useState(1);
+  //console.log(balance, token_logo, tokenAddress, token_symbol, decimal);
+  const balanceA = (balance / 10 ** decimal).toFixed(3);
+  const total = inputAmount * 2 * leverage;
+
+//   const contract_address = "0x274D146c910dCe811805E08fF8F61a1c3A931c4a";
+//   const { config } = usePrepareContractWrite({
+//     addressOrName: contract_address,
+//     contractInterface: abi,
+//     functionName: "openShortTokenPosition",
+//   });
+
+//   const { write, data, isError, isLoading } = useContractWrite(config);
   return (
     <>
       {open ? (
         <>
           <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
             <div className="relative w-auto my-6 mx-auto max-w-sm">
-              <div className="border-0 rounded-lg shadow-sm relative flex flex-col w-fit bg-white outline-none focus:outline-none">
-                <div className="flex items-start justify-between border-b border-solid border-slate-200  rounded-t">
-                  <h3 className="text-2xl text-green-500 ml-20 mt-2 font-semibold">
-                    Open Short Position
+              <div className="border-0 rounded-lg shadow-sm flex flex-col w-fit bg-white outline-none focus:outline-none">
+                <div className="flex items-start justify-between border-b border-solid border-slate-200 rounded-t">
+                  <h3 className="text-2xl text-green-500 ml-10 mt-5 font-semibold">
+                    Short Token
                   </h3>
                   <button
                     className="p-1 ml-auto bg-transparent border-0 text-black float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
@@ -32,37 +56,73 @@ function DepositModal({ open, setOpen }) {
                           <div className="flex-col">
                             <input
                               type="number"
+                              value={inputAmount}
                               className="text-lg border ml-5 h-12 text-center rounded-sm shadow-sm"
-                              id="address"
+                              id="input-amount"
+                              onChange={(event) => {
+                                setInputAmount(event.target.value);
+                              }}
                             />
                           </div>
                           <div className="flex">
                             <img
-                              src="https://t3.ftcdn.net/jpg/04/40/40/64/360_F_440406469_l7tqWxUWXMgJr0ZRad3K6L689mpM0Gdc.jpg"
+                              className="ml-1 mr-1"
+                              src={token_logo}
                               alt="crypto-logo"
-                              height="30"
+                              height="20"
                               width="40"
                             />
-                            <p className="mt-3">Link</p>
+                            <p className="mt-3 font-semibold text-sm">
+                              {token_symbol}
+                            </p>
                           </div>
                         </div>
                         <div className="flex">
-                          <button className="text-xs bg-white ml-6 ">
+                          <button
+                            onClick={() => setInputAmount(balanceA)}
+                            className="text-xs bg-white ml-6 "
+                          >
                             Max
                           </button>
-                          <p className="text-xs ml-16 ">Balance: 920.000</p>
+                          <p className="text-xs ml-16 ">
+                            Balance:{" "}
+                            {((balance - inputAmount) / 10 ** decimal).toFixed(
+                              3
+                            )}
+                          </p>
                         </div>
                       </div>
                       <div className="">
                         <p className="text-gray mt-6 text-xs ml-5">Leverage</p>
                         <div className=" ml-5 flex">
-                          <button className="px-6 bg-bubble-gum text-white font-semibold">
+                          <button
+                            onClick={() => setLeverage(1)}
+                            className={
+                              leverage == 1
+                                ? "px-6 bg-bubble-gum text-white font-semibold border-2"
+                                : "px-6 bg-bubble-gum text-white font-semibold"
+                            }
+                          >
                             1x
                           </button>
-                          <button className="px-6 bg-metal  text-white font-semibold">
+                          <button
+                            onClick={() => setLeverage(2)}
+                            className={
+                              leverage == 2
+                                ? "px-6 bg-metal  text-white font-semibold border-2"
+                                : "px-6 bg-metal  text-white font-semibold"
+                            }
+                          >
                             2x
                           </button>
-                          <button className="px-6 bg-bermuda  text-white font-semibold">
+                          <button
+                            onClick={() => setLeverage(3)}
+                            className={
+                              leverage == 3
+                                ? "px-6 bg-bermuda  text-white font-semibold border-2"
+                                : "px-6 bg-bermuda  text-white font-semibold"
+                            }
+                          >
                             3x
                           </button>
                         </div>
@@ -73,17 +133,15 @@ function DepositModal({ open, setOpen }) {
                           <div className="flex">
                             <div className="ml-2">
                               <p className="text-sm">Total position size</p>
-                              <p className="text-[8px]">
-                                (amount + leverage )
-                              </p>
+                              <p className="text-[8px]">(amount + leverage )</p>
                             </div>
-                            <HiOutlineArrowNarrowRight className="mt-2 ml-5"/>
-                            <p className="mt-1 ml-8">920.000</p>
+                            <HiOutlineArrowNarrowRight className="mt-2 ml-5" />
+                            <p className="mt-1 ml-8">{total}</p>
                           </div>
                         </div>
                       </div>
 
-                      <button className="bg-red mt-6 ml-20 rounded-lg p-1 px-4 w-fit text-white font-semibold">
+                      <button  className="bg-red mt-6 ml-20 rounded-lg p-1 px-4 w-fit text-white font-semibold">
                         short
                       </button>
                     </div>
