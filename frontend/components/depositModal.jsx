@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import {useContractWrite, usePrepareContractWrite} from "wagmi"
+import { useContractWrite, usePrepareContractWrite } from "wagmi";
 import { HiOutlineArrowNarrowRight } from "react-icons/hi";
-//import abi from "../constants/abi.json"
+import B_abi from "../../blockchain/artifacts/contracts/BigShot.sol/BigShot.json";
+import Con_address from "../../blockchain/localContractAddress.json";
 
 function DepositModal({
   open,
@@ -18,14 +19,16 @@ function DepositModal({
   const balanceA = (balance / 10 ** decimal).toFixed(3);
   const total = inputAmount * 2 * leverage;
 
-//   const contract_address = "0x274D146c910dCe811805E08fF8F61a1c3A931c4a";
-//   const { config } = usePrepareContractWrite({
-//     addressOrName: contract_address,
-//     contractInterface: abi,
-//     functionName: "openShortTokenPosition",
-//   });
+  const contract_address = Con_address.contractAddress;
+  const { config } = usePrepareContractWrite({
+    addressOrName: contract_address,
+    contractInterface: B_abi.abi,
+    functionName: "openShortTokenPosition",
+  });
 
-//   const { write, data, isError, isLoading } = useContractWrite(config);
+  const { write, data, isError, isLoading } = useContractWrite(config);
+  console.log(data)
+  console.log(isError)
   return (
     <>
       {open ? (
@@ -141,7 +144,7 @@ function DepositModal({
                         </div>
                       </div>
 
-                      <button  className="bg-red mt-6 ml-20 rounded-lg p-1 px-4 w-fit text-white font-semibold">
+                      <button onClick={write} disabled={isLoading} className="bg-red mt-6 ml-20 rounded-lg p-1 px-4 w-fit text-white font-semibold">
                         short
                       </button>
                     </div>
