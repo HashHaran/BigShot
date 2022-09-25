@@ -11,13 +11,15 @@ contract BigShot is UniswapIntegrationHelper, Ownable {
         address _factory,
         address _WETH9,
         address _aavePoolAddress,
-        address _aaveOracleAddress
+        address _aaveOracleAddress,
+        address _aaveAusdcTokenAddress
     )
         UniswapIntegrationHelper(
             _factory,
             _WETH9,
             _aavePoolAddress,
-            _aaveOracleAddress
+            _aaveOracleAddress,
+            _aaveAusdcTokenAddress
         )
         Ownable()
     {}
@@ -31,7 +33,6 @@ contract BigShot is UniswapIntegrationHelper, Ownable {
 
     function openShortTokenPosition(
         address tokenAddress,
-        uint256 units,
         address collateralAddress,
         uint24 uniswapPoolFee,
         uint256 flashCollateral,
@@ -46,7 +47,6 @@ contract BigShot is UniswapIntegrationHelper, Ownable {
         );
         _initiateShortPositionWithFlashSwapCollateral(
             tokenAddress,
-            units,
             collateralAddress,
             uniswapPoolFee,
             flashCollateral,

@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 pragma abicoder v2;
 
 import "@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3FlashCallback.sol";
+import "@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3SwapCallback.sol";
 import "@uniswap/v3-core/contracts/libraries/LowGasSafeMath.sol";
 
 import "@uniswap/v3-periphery/contracts/base/PeripheryPayments.sol";
@@ -19,19 +20,31 @@ import "hardhat/console.sol";
 contract UniswapIntegrationHelper is
     AaveIntegrationHelper,
     IUniswapV3FlashCallback,
+    IUniswapV3SwapCallback,
     PeripheryPayments
 {
     using LowGasSafeMath for uint256;
     using LowGasSafeMath for int256;
 
+    /// @dev The minimum value that can be returned from #getSqrtRatioAtTick. Equivalent to getSqrtRatioAtTick(MIN_TICK)
+    uint160 internal constant MIN_SQRT_RATIO = 4295128739;
+    /// @dev The maximum value that can be returned from #getSqrtRatioAtTick. Equivalent to getSqrtRatioAtTick(MAX_TICK)
+    uint160 internal constant MAX_SQRT_RATIO =
+        1461446703485210103287273052203988822378723970342;
+
     constructor(
         address _factory,
         address _WETH9,
         address _aavePoolAddress,
-        address _aaveOracleAddress
+        address _aaveOracleAddress,
+        address _aaveAusdcTokenAddress
     )
         PeripheryImmutableState(_factory, _WETH9)
-        AaveIntegrationHelper(_aavePoolAddress, _aaveOracleAddress)
+        AaveIntegrationHelper(
+            _aavePoolAddress,
+            _aaveOracleAddress,
+            _aaveAusdcTokenAddress
+        )
     {}
 
     struct FlashCallbackData {
@@ -57,7 +70,6 @@ contract UniswapIntegrationHelper is
 
     function _initiateShortPositionWithFlashSwapCollateral(
         address tokenAddress,
-        uint256 units,
         address collateralAddress,
         uint24 uniswapPoolFee,
         uint256 flashCollateral,
@@ -92,10 +104,32 @@ contract UniswapIntegrationHelper is
         // amount of token1 requested to borrow
         // need amount 0 and amount1 in callback to pay back pool
         // recipient of flash should be THIS contract
-        pool.flash(
+        // pool.flash(
+        //     address(this),
+        //     flashParams.amount0,
+        //     flashParams.amount1,
+        //     abi.encode(
+        //         FlashCallbackData({
+        //             amount0: flashParams.amount0,
+        //             amount1: flashParams.amount1,
+        //             user: msg.sender,
+        //             poolKey: poolKey,
+        //             isPositionInit: true,
+        //             isToken0Collateral: flashParams.isToken0Collateral,
+        //             units: units,
+        //             userCollateral: userCollateral,
+        //             flashCollateral: flashCollateral,
+        //             targetHealthFactor: 0
+        //         })
+        //     )
+        // );
+        pool.swap(
             address(this),
-            flashParams.amount0,
-            flashParams.amount1,
+            !flashParams.isToken0Collateral,
+            -1 * int256(flashCollateral),
+            !flashParams.isToken0Collateral
+                ? MIN_SQRT_RATIO + 1
+                : MAX_SQRT_RATIO - 1,
             abi.encode(
                 FlashCallbackData({
                     amount0: flashParams.amount0,
@@ -104,7 +138,7 @@ contract UniswapIntegrationHelper is
                     poolKey: poolKey,
                     isPositionInit: true,
                     isToken0Collateral: flashParams.isToken0Collateral,
-                    units: units,
+                    units: 0,
                     userCollateral: userCollateral,
                     flashCollateral: flashCollateral,
                     targetHealthFactor: 0
@@ -149,17 +183,39 @@ contract UniswapIntegrationHelper is
         // amount of token1 requested to borrow
         // need amount 0 and amount1 in callback to pay back pool
         // recipient of flash should be THIS contract
-        pool.flash(
+        // pool.flash(
+        //     address(this),
+        //     flashParams.amount0,
+        //     flashParams.amount1,
+        //     abi.encode(
+        //         FlashCallbackData({
+        //             amount0: flashParams.amount0,
+        //             amount1: flashParams.amount1,
+        //             user: msg.sender,
+        //             poolKey: poolKey,
+        //             isPositionInit: false,
+        //             isToken0Collateral: flashParams.isToken0Collateral,
+        //             units: units,
+        //             userCollateral: 0,
+        //             flashCollateral: 0,
+        //             targetHealthFactor: targetHealthFactor
+        //         })
+        //     )
+        // );
+        pool.swap(
             address(this),
-            flashParams.amount0,
-            flashParams.amount1,
+            flashParams.isToken0Collateral,
+            -1 * int256(units),
+            flashParams.isToken0Collateral
+                ? MIN_SQRT_RATIO + 1
+                : MAX_SQRT_RATIO - 1,
             abi.encode(
                 FlashCallbackData({
                     amount0: flashParams.amount0,
                     amount1: flashParams.amount1,
                     user: msg.sender,
                     poolKey: poolKey,
-                    isPositionInit: true,
+                    isPositionInit: false,
                     isToken0Collateral: flashParams.isToken0Collateral,
                     units: units,
                     userCollateral: 0,
@@ -227,9 +283,88 @@ contract UniswapIntegrationHelper is
         }
 
         // pay the required amounts back to the pair
-        if (amount0Min > 0)
-            pay(token0, decodedCallBkData.user, msg.sender, amount0Min);
-        if (amount1Min > 0)
-            pay(token1, decodedCallBkData.user, msg.sender, amount1Min);
+        if (amount0Min > 0) pay(token0, address(this), msg.sender, amount0Min);
+        if (amount1Min > 0) pay(token1, address(this), msg.sender, amount1Min);
+    }
+
+    /// @notice Called to `msg.sender` after executing a swap via IUniswapV3Pool#swap.
+    /// @dev In the implementation you must pay the pool tokens owed for the swap.
+    /// The caller of this method must be checked to be a UniswapV3Pool deployed by the canonical UniswapV3Factory.
+    /// amount0Delta and amount1Delta can both be 0 if no tokens were swapped.
+    /// @param amount0Delta The amount of token0 that was sent (negative) or must be received (positive) by the pool by
+    /// the end of the swap. If positive, the callback must send that amount of token0 to the pool.
+    /// @param amount1Delta The amount of token1 that was sent (negative) or must be received (positive) by the pool by
+    /// the end of the swap. If positive, the callback must send that amount of token1 to the pool.
+    /// @param data Any data passed through by the caller via the IUniswapV3PoolActions#swap call
+    function uniswapV3SwapCallback(
+        int256 amount0Delta,
+        int256 amount1Delta,
+        bytes calldata data
+    ) external {
+        FlashCallbackData memory decodedCallBkData = abi.decode(
+            data,
+            (FlashCallbackData)
+        );
+        CallbackValidation.verifyCallback(factory, decodedCallBkData.poolKey);
+
+        address payToken;
+        uint256 payAmount;
+        address tokenAddress;
+        address collateralAddress;
+        int256 tokenDelta;
+        int256 collateralDelta;
+
+        if (decodedCallBkData.isToken0Collateral) {
+            console.log("Collateral amount delta: ");
+            console.logInt(amount0Delta);
+            console.log("Token amount delta: ");
+            console.logInt(amount1Delta);
+            tokenAddress = decodedCallBkData.poolKey.token1;
+            collateralAddress = decodedCallBkData.poolKey.token0;
+            tokenDelta = amount1Delta;
+            collateralDelta = amount0Delta;
+        } else {
+            console.log("Collateral amount delta: ");
+            console.logInt(amount1Delta);
+            console.log("Token amount delta: ");
+            console.logInt(amount0Delta);
+            tokenAddress = decodedCallBkData.poolKey.token0;
+            collateralAddress = decodedCallBkData.poolKey.token1;
+            tokenDelta = amount0Delta;
+            collateralDelta = amount1Delta;
+        }
+
+        if (decodedCallBkData.isPositionInit) {
+            payToken = tokenAddress;
+            payAmount = uint256(tokenDelta);
+            console.log("Pay Amount: ");
+            console.logUint(payAmount);
+            console.log("Pay Token: ");
+            console.logAddress(payToken);
+            _suppllyCollateralAndBorrow(
+                tokenAddress,
+                payAmount,
+                collateralAddress,
+                decodedCallBkData.flashCollateral,
+                decodedCallBkData.userCollateral,
+                decodedCallBkData.user
+            );
+            pay(payToken, address(this), msg.sender, payAmount);
+        } else {
+            payToken = collateralAddress;
+            payAmount = uint256(collateralDelta);
+            console.log("Pay Amount: ");
+            console.logUint(payAmount);
+            console.log("Pay Token: ");
+            console.logAddress(payToken);
+            _repayAndWithdrawCollateral(
+                tokenAddress,
+                decodedCallBkData.units,
+                collateralAddress,
+                decodedCallBkData.user,
+                decodedCallBkData.targetHealthFactor
+            );
+            pay(payToken, decodedCallBkData.user, msg.sender, payAmount);
+        }
     }
 }
