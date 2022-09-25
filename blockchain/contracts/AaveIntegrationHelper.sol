@@ -4,15 +4,22 @@ pragma solidity ^0.8.10;
 import "hardhat/console.sol";
 import {IPool} from "@aave/core-v3/contracts/interfaces/IPool.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IPriceOracle} from "@aave/core-v3/contracts/interfaces/IPriceOracle.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {IPriceOracleGetter} from "@aave/core-v3/contracts/interfaces/IPriceOracleGetter.sol";
 
 contract AaveIntegrationHelper {
     IPool public poolAddress;
-    IPriceOracle public oracleAddress;
+    IPriceOracleGetter public oracleAddress;
+    IERC20 public aUsdc;
 
-    constructor(address _poolAddress, address _oracleAddress) {
+    constructor(
+        address _poolAddress,
+        address _oracleAddress,
+        address _aaveAusdcTokenAddress
+    ) {
         poolAddress = IPool(_poolAddress);
-        oracleAddress = IPriceOracle(_oracleAddress);
+        oracleAddress = IPriceOracleGetter(_oracleAddress);
+        aUsdc = IERC20(_aaveAusdcTokenAddress);
     }
 
     function depositToken(
@@ -69,6 +76,8 @@ contract AaveIntegrationHelper {
         uint256 targetHealth
     ) public {
         // IERC20(tokenBorrowed).approve(address(poolAddress), units);
+        console.log("User:");
+        console.logAddress(user);
         poolAddress.repay(tokenBorrowed, units, 2, user);
         (
             uint256 totalCollateralBase,
@@ -77,20 +86,31 @@ contract AaveIntegrationHelper {
             uint256 currentLiquidationThreshold,
             ,
 
-        ) = poolAddress.getUserAccountData(address(this));
+        ) = poolAddress.getUserAccountData(user);
+        console.log("Total Debt Base:");
+        console.logUint((totalDebtBase));
         if (totalDebtBase <= 0) {
+            aUsdc.transferFrom(user, address(this), aUsdc.balanceOf(user));
             uint256 _getPrice = oracleAddress.getAssetPrice(collateralAddress);
-            uint256 amountWithdraw = (totalCollateralBase / _getPrice) *
-                1000000000000000000;
-            poolAddress.withdraw(collateralAddress, amountWithdraw, user);
+            console.log("Collateral Asset Price from Oracle:");
+            console.logUint(_getPrice);
+            uint256 amountWithdraw = (totalCollateralBase *
+                oracleAddress.BASE_CURRENCY_UNIT()) /
+                ERC20(collateralAddress).decimals();
+            console.log("Amount to withdraw:");
+            console.logUint(amountWithdraw);
+            poolAddress.withdraw(collateralAddress, type(uint256).max, user);
         } else {
             uint256 withdrawAmount = calculateWithdraw(
                 targetHealth,
+                totalCollateralBase,
                 totalDebtBase,
                 currentLiquidationThreshold,
                 collateralAddress
             );
             poolAddress.withdraw(collateralAddress, withdrawAmount, user);
+            console.log("User Balance after withdraw: ");
+            console.logUint(IERC20(collateralAddress).balanceOf(user));
         }
     }
 
@@ -136,17 +156,22 @@ contract AaveIntegrationHelper {
     // assuming our the values are in ETH
     function calculateWithdraw(
         uint256 healthFactor,
-        uint256 totalBorrow,
+        uint256 totalCollateralBase,
+        uint256 totalBorrowBase,
         uint256 liquidationThreshold,
         address collateralAddress
     ) public view returns (uint256) {
         uint256 liquidationValue = liquidationThreshold / 100;
-        uint256 totalCollateral = (healthFactor * totalBorrow) /
+        uint256 requiredCollateralBase = (healthFactor * totalBorrowBase) /
             liquidationValue;
-        uint256 _getPrice = oracleAddress.getAssetPrice(collateralAddress);
-        uint256 _getAmount = totalCollateral / _getPrice;
-        uint256 _total = _getAmount * 1000000000000000000;
-        return _total;
+        uint256 withdrawCollateralBase = totalCollateralBase -
+            requiredCollateralBase;
+        uint256 collateralBaseRate = oracleAddress.getAssetPrice(
+            collateralAddress
+        );
+        uint256 withdrawCollateralNative = withdrawCollateralBase /
+            collateralBaseRate;
+        return withdrawCollateralNative;
     }
 
     function getPrice(address assest) public view returns (uint256) {

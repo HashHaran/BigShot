@@ -68,6 +68,7 @@ const config: HardhatUserConfig = {
     },
     fork: {
       url: "http://127.0.0.1:8545/",
+      timeout: 100_000
       // accounts: [`0x${PRIVATE_KEY1}`, `0x${PRIVATE_KEY2}`, `0x${PRIVATE_KEY3}`, `0x${PRIVATE_KEY4}`]
     },
     goerli: {
@@ -82,6 +83,10 @@ const config: HardhatUserConfig = {
       url: POLYGON_MUMBAI_API_URL,
       accounts: [`0x${PRIVATE_KEY1}`, `0x${PRIVATE_KEY2}`, `0x${PRIVATE_KEY3}`, `0x${PRIVATE_KEY4}`]
     }
+  },
+  mocha: {
+    parallel: false,
+    timeout: 800000
   }
 };
 
