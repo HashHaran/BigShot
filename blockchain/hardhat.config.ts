@@ -10,6 +10,9 @@ dotenv.config();
 const GOERLI_API_URL: string | undefined = process.env.GOERLI_API_URL;
 const OPTIMISM_GOERLI_API_URL: string | undefined = process.env.OPTIMISM_GOERLI_API_URL;
 const POLYGON_MUMBAI_API_URL: string | undefined = process.env.POLYGON_MUMBAI_API_URL;
+const OPTIMISM_MAINNET_API_URL: string | undefined = process.env.OPTIMISM_MAINNET_API_URL;
+const POLYGON_MAINNET_API_URL: string | undefined = process.env.POLYGON_MAINNET_API_URL;
+
 const PRIVATE_KEY1: string | undefined = process.env.PRIVATE_KEY1;
 const PRIVATE_KEY2: string | undefined = process.env.PRIVATE_KEY2;
 const PRIVATE_KEY3: string | undefined = process.env.PRIVATE_KEY3;
@@ -82,7 +85,15 @@ const config: HardhatUserConfig = {
     polygon_mumbai: {
       url: POLYGON_MUMBAI_API_URL,
       accounts: [`0x${PRIVATE_KEY1}`, `0x${PRIVATE_KEY2}`, `0x${PRIVATE_KEY3}`, `0x${PRIVATE_KEY4}`]
-    }
+    },
+    optimism_mainnet: {
+      url: OPTIMISM_MAINNET_API_URL,
+      accounts: [`0x${PRIVATE_KEY1}`, `0x${PRIVATE_KEY2}`, `0x${PRIVATE_KEY3}`, `0x${PRIVATE_KEY4}`]
+    },
+    polygon_mainnet: {
+      url: POLYGON_MAINNET_API_URL,
+      accounts: [`0x${PRIVATE_KEY1}`, `0x${PRIVATE_KEY2}`, `0x${PRIVATE_KEY3}`, `0x${PRIVATE_KEY4}`]
+    },
   },
   mocha: {
     parallel: false,

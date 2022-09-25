@@ -13,15 +13,31 @@ import { ICreditDelegationToken__factory } from "../typechain-types/factories/ex
 
 import * as fs from "fs";
 
+let USDC: string, vUSDC: string, aUSDC: string, USDC_NUM_DECIMALS: number, WETH: string, vWETH: string, WETH_NUM_DECIMALS: number, AAVE_POOL: string;
+const NETWORK = "optimism";
 //CONFIG: OPTIMISM MAIN NET ADDRESSES THAT WE WILL NEED AND OTHER CONFIGURATIONS
-const USDC: string = "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"; //Ether Scan
-const vUSDC: string = "0xFCCf3cAbbe80101232d343252614b6A3eE81C989"; //Ether Scan
-const aUSDC: string = "0x625E7708f30cA75bfd92586e17077590C60eb4cD"; //Ether Scan
-const USDC_NUM_DECIMALS: number = 6; //Ether Scan
-const WETH: string = "0x4200000000000000000000000000000000000006"; //Ether Scan
-const vWETH: string = "0x0c84331e39d6658Cd6e6b9ba04736cC4c4734351" //Ether Scan
-const WETH_NUM_DECIMALS: number = 18 //Ether Scan
-const AAVE_POOL = "0x794a61358D6845594F94dc1DB02A252b5b4814aD"; //Aave docs
+if (NETWORK === "optimism") {
+    USDC = "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"; //Ether Scan
+    vUSDC = "0xFCCf3cAbbe80101232d343252614b6A3eE81C989"; //Ether Scan
+    aUSDC = "0x625E7708f30cA75bfd92586e17077590C60eb4cD"; //Ether Scan
+    USDC_NUM_DECIMALS = 6; //Ether Scan
+    WETH = "0x4200000000000000000000000000000000000006"; //Ether Scan
+    vWETH = "0x0c84331e39d6658Cd6e6b9ba04736cC4c4734351" //Ether Scan
+    WETH_NUM_DECIMALS = 18 //Ether Scan
+    AAVE_POOL = "0x794a61358D6845594F94dc1DB02A252b5b4814aD"; //Aave docs
+} else if (NETWORK === "polygon") {
+    USDC = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"; //Ether Scan
+    vUSDC = "0xFCCf3cAbbe80101232d343252614b6A3eE81C989"; //Ether Scan
+    aUSDC = "0x625E7708f30cA75bfd92586e17077590C60eb4cD"; //Ether Scan
+    USDC_NUM_DECIMALS = 6; //Ether Scan
+    WETH = "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619"; //Ether Scan
+    vWETH = "0x0c84331e39d6658Cd6e6b9ba04736cC4c4734351" //Ether Scan
+    WETH_NUM_DECIMALS = 18 //Ether Scan
+    AAVE_POOL = "0x794a61358D6845594F94dc1DB02A252b5b4814aD"; //Aave docs
+} else {
+    throw new Error("Addresses not available for chain");
+}
+
 const WETH_USDC_RATE: number = 1340 * 10 ** USDC_NUM_DECIMALS / 10 ** WETH_NUM_DECIMALS;
 const WETH_USDC_RATE_CLOSE_SHORT: number = 1325;
 const DESIRED_HEALTH_FACTOR_OF_SHORT: number = 1.5;

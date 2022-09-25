@@ -91,14 +91,8 @@ contract AaveIntegrationHelper {
         console.logUint((totalDebtBase));
         if (totalDebtBase <= 0) {
             aUsdc.transferFrom(user, address(this), aUsdc.balanceOf(user));
-            uint256 _getPrice = oracleAddress.getAssetPrice(collateralAddress);
-            console.log("Collateral Asset Price from Oracle:");
-            console.logUint(_getPrice);
-            uint256 amountWithdraw = (totalCollateralBase *
-                oracleAddress.BASE_CURRENCY_UNIT()) /
-                ERC20(collateralAddress).decimals();
-            console.log("Amount to withdraw:");
-            console.logUint(amountWithdraw);
+            console.log("Total Collateral Base:");
+            console.logUint(totalCollateralBase);
             poolAddress.withdraw(collateralAddress, type(uint256).max, user);
         } else {
             uint256 withdrawAmount = calculateWithdraw(
