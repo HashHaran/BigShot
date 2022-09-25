@@ -80,8 +80,8 @@ export default function Home() {
                   <p className="text-black text-sm w-16 ml-10">can short</p>
                 </div>
                 <hr className="w-full"></hr>
-                {walletAssets.map((assest) => (
-                  <div className="mt-1">
+                {walletAssets.map((assest, i) => (
+                  <div key={i} className="mt-1">
                     <div className="flex">
                       <img
                         className="ml-5 mt-5 mb-2"
