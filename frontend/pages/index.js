@@ -46,23 +46,25 @@ export default function Home() {
 
           <div className="bg-white dark:bg-black w-9/12 h-64 ml-40 rounded-lg mb-10">
             <p className="text-center text-2xl font-bold py-5">About</p>
-            <p className="ml-10 font-semibold text-md">
-              Big short protocol is a defi protocol that enables user hold{" "}
+            <p className="mx-10 font-semibold text-md">
+              Big Shot is a DeFi protocol that enables the user to hold
               <a
                 className="text-gray"
                 href="https://www.investopedia.com/terms/s/short.asp#:~:text=Shorting%20is%20a%20strategy%20used,short%20position%20is%20in%20place"
                 target="blank"
               >
-                short positions{" "}
-              </a>
-              on various tokens and gain interest or mitigate loss
+                {" "}short positions{" "}
+              </a>{" "}
+              on any ERC token. The protocol works by integrating with both AAVE
+              and UNISWAP for the liquidity needs. Giving you the advantage deep
+              pocketed pools to take humongous short positions.
             </p>
             <p className="ml-10 font-semibold text-md">
               This is achieved by the following steps:
             </p>
 
             <p className="ml-8 font-semibold text-md">
-            - The user deposits an amount of a token to short the leverage{" "}
+              - The user deposits an amount of a token to short the leverage{" "}
             </p>
           </div>
           {isConnected ? (
@@ -145,7 +147,7 @@ export default function Home() {
                 </p>
                 <div className="flex mt-10">
                   <p className="text-black ml-10 text-sm">Assests</p>
-                  
+
                   <p className="text-black ml-20 text-sm">Amount shorted</p>
                 </div>
               </div>
