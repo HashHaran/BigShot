@@ -14,7 +14,7 @@ import { ICreditDelegationToken__factory } from "../typechain-types/factories/ex
 import * as fs from "fs";
 
 let USDC: string, vUSDC: string, aUSDC: string, USDC_NUM_DECIMALS: number, WETH: string, vWETH: string, WETH_NUM_DECIMALS: number, AAVE_POOL: string;
-const NETWORK = "optimism";
+const NETWORK: string = "polygon";
 //CONFIG: OPTIMISM MAIN NET ADDRESSES THAT WE WILL NEED AND OTHER CONFIGURATIONS
 if (NETWORK === "optimism") {
     USDC = "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"; //Ether Scan

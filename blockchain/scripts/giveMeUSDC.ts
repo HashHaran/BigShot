@@ -1,7 +1,7 @@
 import { ethers, network } from "hardhat";
 
-const USDC: string = "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"; //Ether Scan
-const USDC_WHALE: string = "0xebe80f029b1c02862b9e8a70a7e5317c06f62cae"; //Ether Scan
+const USDC: string = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"; //"0x7F5c764cBc14f9669B88837ca1490cCa17c31607"; //Ether Scan
+const USDC_WHALE: string = "0xf977814e90da44bfa03b6295a0616a897441acec"; //"0xebe80f029b1c02862b9e8a70a7e5317c06f62cae"; //Ether Scan
 
 async function main() {
   await network.provider.request({

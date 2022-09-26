@@ -3,6 +3,7 @@ import "@nomicfoundation/hardhat-toolbox";
 
 import '@typechain/hardhat'
 import '@nomiclabs/hardhat-ethers'
+import '@nomiclabs/hardhat-etherscan'
 
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -21,6 +22,9 @@ const TEST_PRIVATE_KEY1: string | undefined = process.env.TEST_PRIVATE_KEY1;
 const TEST_PRIVATE_KEY2: string | undefined = process.env.TEST_PRIVATE_KEY2;
 const TEST_PRIVATE_KEY3: string | undefined = process.env.TEST_PRIVATE_KEY3;
 const TEST_PRIVATE_KEY4: string | undefined = process.env.TEST_PRIVATE_KEY4;
+const ETHER_SCAN_API_KEY: string | undefined = process.env.ETHER_SCAN_API_KEY;
+const POLY_SCAN_API_KEY: string | undefined = process.env.POLY_SCAN_API_KEY;
+const OPT_SCAN_API_KEY: string | undefined = process.env.OPT_SCAN_API_KEY;
 
 if (!GOERLI_API_URL || !PRIVATE_KEY1 || !PRIVATE_KEY2 || !PRIVATE_KEY3 || !PRIVATE_KEY4) {
   throw new Error("Please set your API_URL and PRIVATE_KEYs in a .env file");
@@ -98,7 +102,14 @@ const config: HardhatUserConfig = {
   mocha: {
     parallel: false,
     timeout: 800000
-  }
+  },
+  etherscan: {
+    apiKey: {
+      mainnet: ETHER_SCAN_API_KEY,
+      optimisticEthereum: OPT_SCAN_API_KEY,
+      polygon: POLY_SCAN_API_KEY,
+    },
+  },
 };
 
 export default config;
