@@ -1,16 +1,12 @@
 import Head from "next/head";
 import { WalletConnectButton } from "../components/wallet_connect";
-import {
-  useAccount,
-  useNetwork,
-  useContractWrite,
-  usePrepareContractWrite,
-} from "wagmi";
+import { useAccount, useNetwork } from "wagmi";
 import { useEffect, useState } from "react";
 import { BiCheck } from "react-icons/bi";
 import { GrFormClose } from "react-icons/gr";
 import DepositModal from "../components/depositModal";
 import { ethers } from "ethers";
+import UserPosition from "../components/userPosition";
 
 export default function Home() {
   const [walletAssets, setWalletAssets] = useState([]);
@@ -23,7 +19,6 @@ export default function Home() {
 
   const { address, isDisconnected, isConnected } = useAccount();
   const { chain } = useNetwork();
-  
 
   const getValues = (tBalance, Taddress, Tlogo, Tsymbol, Tdecimal) => {
     setOpen(true);
@@ -83,26 +78,24 @@ export default function Home() {
               and UNISWAP for the liquidity needs. Giving you the advantage deep
               pocketed pools to take humongous short positions.
             </p>
-            <p className="ml-10 font-semibold text-md">
-              This is achieved by the following steps:
-            </p>
 
-            <p className="ml-8 font-semibold text-md">
-              - The user deposits an amount of a token to short the leverage{" "}
+            <p className="mx-10 font-semibold text-md">
+              It also provides leverage on the short position by employing Flash
+              Swap.{" "}
             </p>
           </div>
           {isConnected ? (
             <div className="flex pb-56">
               {walletAssets.length > 0 && (
-                <div className="bg-white w-5/12 h-fit ml-20 rounded-lg">
+                <div className="bg-white w-5/12 h-fit ml-20 border-2 border-blue">
                   <p className="text-black font-semibold m-5">
                     Assests to Supply
                   </p>
                   <div className="flex mt-10">
-                    <p className="text-black ml-10 text-sm">Assests</p>
-                    <p className="text-black ml-20 text-sm">Balance</p>
-                    <p className="text-black ml-20 text-sm">Price (USD)</p>
-                    <p className="text-black text-sm w-16 ml-10">can short</p>
+                    <p className="text-black ml-10 text-xs">Assests</p>
+                    <p className="text-black ml-20 text-xs">Balance</p>
+                    <p className="text-black ml-14 text-xs">Price (USD)</p>
+                    <p className="text-black text-xs  ml-10">Can be shorted</p>
                   </div>
                   <hr className="w-full"></hr>
                   {walletAssets.map((assest, i) => (
@@ -118,12 +111,12 @@ export default function Home() {
                           height="30"
                           width="30"
                         />
-                        <p className="text-black mt-6 ml-3 font-semibold ">
-                          {assest.contract_name.length <= 8
-                            ? `${assest.contract_name} ${"      "}`
-                            : ` ${assest.contract_name.slice(0, 6)}..`}
-                        </p>
-                        <p className="text-black mt-6 ml-16">
+                        
+                          {assest.contract_ticker_symbol.length <= 8
+                            ? <p className="text-black mt-6 ml-3 font-semibold mr-16">{assest.contract_ticker_symbol}</p>
+                            : <p className="text-black mt-6 ml-3 font-semibold mr-6">{(assest.contract_ticker_symbol).slice(0,7)}...</p>}
+                      
+                        <p className="text-black mt-6 ">
                           {(
                             assest.holdings[0].close.balance /
                             10 ** assest.contract_decimals
@@ -164,11 +157,11 @@ export default function Home() {
                           }
                           className={
                             assest.holdings[0].close.quote == null
-                              ? "bg-gray w-fit h-fit p-1 px-2 font-semibold text-sm ml-10 rounded-lg text-white mt-5"
-                              : `bg-blue w-fit h-fit p-1 px-2 font-semibold text-sm ml-10 rounded-lg text-white mt-5`
+                              ? "bg-gray w-fit h-fit p-1 px-2 font-semibold text-sm ml-10 text-white mt-5"
+                              : `bg-red w-fit h-fit p-1 px-2 font-semibold text-sm ml-10 text-white mt-5`
                           }
                         >
-                          short
+                          short token
                         </button>
                         <DepositModal
                           open={open}
@@ -185,17 +178,7 @@ export default function Home() {
                   ))}
                 </div>
               )}
-
-              {/* <div className="bg-white w-5/12 h-28 ml-20 rounded-lg">
-                <p className="text-black font-semibold m-5">
-                  Open short positions
-                </p>
-                <div className="flex mt-10">
-                  <p className="text-black ml-10 text-sm">Assests</p>
-
-                  <p className="text-black ml-20 text-sm">Amount shorted</p>
-                </div>
-              </div> */}
+              <UserPosition />
             </div>
           ) : (
             <div className="mt-20 pl-[600px] pb-80">
