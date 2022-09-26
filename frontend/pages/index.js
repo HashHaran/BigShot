@@ -64,7 +64,7 @@ export default function Home() {
 
           <div className="bg-white dark:bg-black w-9/12 h-64 ml-40 rounded-lg mb-10">
             <p className="text-center text-2xl font-bold py-5">About</p>
-            <p className="mx-10 font-semibold text-md">
+            <p className="mx-10 font-semibold text-md text-xl">
               Big Shot is a DeFi protocol that enables the user to hold
               <a
                 className="text-gray"
@@ -79,7 +79,7 @@ export default function Home() {
               pocketed pools to take humongous short positions.
             </p>
 
-            <p className="mx-10 font-semibold text-md">
+            <p className="mx-10 font-semibold text-md text-xl">
               It also provides leverage on the short position by employing Flash
               Swap.{" "}
             </p>
