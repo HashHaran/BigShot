@@ -131,7 +131,7 @@ export default function Home() {
                           <GrFormClose
                             className="ml-20 mt-5"
                             size={30}
-                            colorRendering="red"
+                            
                           />
                         ) : (
                           <BiCheck

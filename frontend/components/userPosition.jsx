@@ -24,9 +24,7 @@ const UserPosition = () => {
   const PoolAddressProvider =
     deployedContracts[chain.id]["poolAddressesProvider"];
   let userReserveDataArray = [];
-  //   let reservesArray;
-  //   let baseCurrencyData;
-  //   let userReservesArray;
+  
   const currentTimeUnix = Math.floor(Date.now() / 1000);
   const poolDataProviderContract = new UiPoolDataProvider({
     uiPoolDataProviderAddress,
