@@ -2,7 +2,7 @@ import { ethers, network } from "hardhat";
 var fs = require('fs');
 
 let WETH9: string, UNISWAP_FACTORY: string, AAVE_POOL: string, AAVE_ORACLE_ADDRESS: string, AAVE_AUSDC_ADDRESS: string;
-const NETWORK = "optimism";
+const NETWORK: string = "optimism";
 //CONFIG: Wrapped ETH address and Uniswap Factory address of Optimism Main net. Intended to be used for testing with fork
 if (NETWORK === "optimism") {
   WETH9 = "0x4200000000000000000000000000000000000006"; //Ether Scan
