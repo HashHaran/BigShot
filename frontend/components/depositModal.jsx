@@ -24,6 +24,7 @@ function DepositModal({
     addressOrName: contract_address,
     contractInterface: B_abi.abi,
     functionName: "openShortTokenPosition",
+    args: [tokenAddress, ]
   });
 
   const { write, data, isError, isLoading } = useContractWrite(config);
